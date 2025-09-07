@@ -17,13 +17,13 @@ Uma **thread**, ou linha de execução, é uma unidade de execução que reside 
 ### b) Descreva os cinco estados de um processo (novo, pronto, executando, esperando, terminado) e explique como esses estados se relacionam com processos distribuídos executando em diferentes máquinas.
 
 Esses cinco estados são o ciclo de vida de um processo em execução. Abaixo apresento os cinco estados e suas descrições.
-1. `Novo` (New): o processo está sendo criado. Ele ainda não está carregado na memória principal, mas já tem um Bloco de Controle de Processo (BCP) associado a ele.
-2. `Pronto` (Ready): o processo está pronto para ser executado e está aguardando na fila de processos do escalonador do sistema operacional. Ele está na memória principal e espera apenas o CPU ficar disponível.
-3. `Executando` (Running): o processo está atualmente utilizando o CPU e suas instruções estão sendo executadas. Em um sistema com um único CPU, apenas um processo pode estar neste estado por vez.
-4. `Esperando` (Waiting): o processo foi temporariamente suspenso. Isso acontece quando ele precisa aguardar a conclusão de algum evento, como uma operação de entrada/saída (I/O) ou a liberação de um recurso.
-5. `Terminado` (Terminated): o processo concluiu sua execução. O sistema operacional está liberando todos os seus recursos e o processo é removido da memória.
+1. `Novo`: o processo está sendo criado. Ele ainda não está carregado na memória principal, mas já tem um Bloco de Controle de Processo (BCP) associado a ele.
+2. `Pronto`: o processo está pronto para ser executado e está aguardando na fila de processos do escalonador do sistema operacional. Ele está na memória principal e espera apenas o CPU ficar disponível.
+3. `Executando`: o processo está atualmente utilizando o CPU e suas instruções estão sendo executadas. Em um sistema com um único CPU, apenas um processo pode estar neste estado por vez.
+4. `Esperando`: o processo foi temporariamente suspenso. Isso acontece quando ele precisa aguardar a conclusão de algum evento, como uma operação de entrada/saída (I/O) ou a liberação de um recurso.
+5. `Terminado`: o processo concluiu sua execução. O sistema operacional está liberando todos os seus recursos e o processo é removido da memória.
 
-Em um sistema distribuído, o gerenciamento desses estados se torna mais complexo, pois eles <u>ocorrem em múltiplas máquinas que se comunicam através de uma rede</u>.
+Em um sistema distribuído, o gerenciamento desses estados se torna mais complexo, pois eles ocorrem em múltiplas máquinas que se comunicam através de uma rede.
 
 - Estados locais: os estados `Pronto` e `Executando` são sempre locais a um nó (máquina) específico. Um processo só pode estar "executando" no CPU de um computador por vez. A gestão da fila de processos "prontos" também é feita localmente por cada sistema operacional.
 - Comunicação entre máquinas: o estado de `Esperando` é afetado. Em um sistema distribuído, um processo pode entrar no estado de espera não apenas por uma operação de I/O local, mas também por eventos remotos. Por exemplo, um processo em um servidor pode estar esperando uma resposta de um cliente em outra máquina ou a conclusão de uma tarefa em um banco de dados remoto. A latência da rede pode prolongar significativamente o tempo de espera.
@@ -42,7 +42,7 @@ A principal implicação é que, embora os estados de um processo sejam os mesmo
 
 **Pipes**
 - Como funcionam: são canais de comunicação unidirecionais (de mão única) que permitem a transferência de dados entre dois processos. Existem pipes anônimos (geralmente entre processos pai e filho) e pipes nomeados, que podem ser usados por processos não relacionados na mesma máquina.
-- Implicações em sistemas distribuídos: mecanismo totalmente local. Não podem ser usados para comunicação entre máquinas diferentes em uma rede! São úteis apenas para orquestrar processos dentro de um único computador.
+- Implicações em sistemas distribuídos: o mecanismo totalmente local! Não podem ser usados para comunicação entre máquinas diferentes em uma rede! São úteis apenas para orquestrar processos dentro de um único computador.
 
 **Memória compartilhada**
 - Como funciona: vários processos acessam a mesma região da memória principal. É o método mais rápido de IPC porque evita a cópia de dados entre o espaço de memória do kernel e o espaço de memória dos processos. No entanto, exige um alto nível de sincronização para evitar condições de corrida, onde múltiplos processos tentam escrever na mesma área ao mesmo tempo.
@@ -147,10 +147,26 @@ Em suma, o modelo cliente-servidor oferece a estrutura e a arquitetura para a co
 # 🌐 SEÇÃO II: FUNDAMENTOS DE SISTEMAS DISTRIBUÍDOS
 ## Questão 3 - Definições e Características
 ### a) Forneça uma definição precisa de sistema distribuído segundo Coulouris et al. Quais são as três características que distinguem um sistema distribuído de um sistema centralizado?
+Segundo o livro "Sistemas Distribuídos - Conceito e projeto" (4ª edição), de Coulouris et al., "um sistema distribuído é aquele no qual os componentes localizados em computadores interligados em rede se comunicam e coordenam suas ações apenas passando mensagens". As três características que distinguem um sistema distribuído são: concorrência de componentes, falta de um relógio global e falhas de componentes independentes.
 
 ### b) Explique detalhadamente quatro tipos de transparência em sistemas distribuídos, fornecendo exemplos práticos de cada um usando sistemas conhecidos (WhatsApp, Gmail, Google Drive, Netflix).
+- `Transparência de acesso`: esconde as diferenças na representação dos dados e na forma como os recursos são acessados. O usuário interage com o recurso da mesma forma, independentemente de sua localização ou de como ele é armazenado internamente. Exemplo: no Google Drive, o usuário abre um arquivo do Google Drive da mesma maneira, tanto no seu computador, pelo aplicativo móvel, ou pela web. O sistema lida com as diferenças de formato e protocolo de forma transparente para que a experiência do usuário seja consistente.
+
+- `Transparência de localização`: esconde a localização real dos recursos. O usuário não precisa saber onde um recurso está armazenado ou onde um serviço está sendo executado. Exemplo: na Netflix, quando um usuário assiste a um filme, a Netflix o transmite a partir de um dos milhares de servidores da sua CDN (Content Delivery Network) global. O sistema encontra automaticamente o servidor mais próximo e com melhor desempenho para você, sem que você precise saber onde ele está.
+
+- `Transparência de replicação`: esconde o fato de que múltiplos cópias de um recurso (dados ou serviços) existem. A replicação é usada para aumentar a confiabilidade e o desempenho, mas o usuário enxerga apenas um único recurso.Exemplo: no Gmail, os e-mails estão armazenados em vários servidores para garantir que você possa acessá-los mesmo se um dos servidores falhar. No entanto, você interage com seu e-mail como se ele estivesse em um único lugar, e o sistema garante que as mudanças em uma cópia sejam refletidas nas outras de forma transparente.
+
+- `Transparência de falha`: esconde as falhas dos componentes, permitindo que o sistema continue funcionando sem que o usuário perceba a interrupção. Exemplo: no WhatsApp, se o servidor que está gerenciando a conversa de um usuário falhar, o sistema de mensagens o substitui por outro de forma transparente. A mensagem que você enviou pode ter um pequeno atraso, mas ela será entregue e você não será notificado sobre o erro no servidor.
 
 ### c) Analise os principais desafios inerentes aos sistemas distribuídos: heterogeneidade, falhas, concorrência e segurança. Como cada desafio impacta o projeto de arquiteturas distribuídas?
+
+- `Heterogeneidade`: o desafio é fazer com que sistemas, redes, hardware e linguagens de programação diferentes trabalhem juntos. A arquitetura deve incluir uma camada intermediária (middleware) que traduza a comunicação e mascare as diferenças para o programador.
+
+- `Falhas`: falhas de rede, hardware ou software são comuns. O design deve ser resiliente, com redundância (replicação de dados), mecanismos de detecção de falhas e algoritmos de consenso para garantir que o sistema continue funcionando mesmo com a queda de componentes.
+
+- `Concorrência`: múltiplos processos em diferentes máquinas podem tentar acessar o mesmo recurso simultaneamente. O projeto deve usar mecanismos de sincronização distribuída, como bloqueios e protocolos de transação, para evitar inconsistências nos dados.
+
+- `Segurança`: a natureza aberta das redes torna os sistemas distribuídos vulneráveis a ataques. O design deve priorizar a segurança com criptografia, autenticação forte e controle de acesso para proteger os dados e a comunicação.
 
 ## Questão 4 - Vantagens e Trade-offs
 ### a) Identifique e explique quatro vantagens fundamentais dos sistemas distribuídos em relação aos sistemas centralizados.
@@ -321,15 +337,27 @@ Demonstre como os conceitos de Sistemas Operacionais se estendem para Sistemas D
 
 # 📚 SEÇÃO VI: QUESTÕES DISSERTATIVAS AVANÇADAS
 ## Questão 11 - Análise Comparativa
-Cenário: Uma empresa precisa escolher entre uma arquitetura cliente-servidor tradicional e uma arquitetura P2P para um novo sistema de compartilhamento de arquivos corporativo.
-
-Analise este cenário considerando:
+Uma empresa precisa escolher entre uma arquitetura cliente-servidor tradicional e uma arquitetura P2P para um novo sistema de compartilhamento de arquivos corporativo. Analise este cenário considerando:
 - Requisitos de segurança corporativa
 - Controle administrativo
 - Escalabilidade para 10.000 usuários
 - Tolerância a falhas
 - Custos de infraestrutura
 Justifique sua recomendação com base nos conceitos estudados.
+
+Segue uma análise de cada uma das arquiteturas.
+
+**Arquitetura cliente-servidor**
+- `Requisitos de segurança e controle`: esta arquitetura é ideal para ambientes corporativos. A segurança e o controle administrativo podem ser gerenciados de forma centralizada no servidor. É fácil implementar políticas de acesso rigorosas, autenticação de usuários, criptografia de dados em trânsito e em repouso, e realizar auditorias regulares.
+- `Escalabilidade e tolerância a falhas`: a escalabilidade pode ser um desafio, pois o servidor pode se tornar um gargalo de desempenho. No entanto, é um problema conhecido e solucionável com estratégias como a escalabilidade horizontal (adicionando mais servidores) e o uso de balanceadores de carga. A tolerância a falhas é um risco, pois a falha do servidor central derruba o sistema. Isso pode ser mitigado com redundância e sistemas de failover, embora com custos adicionais.
+- `Custos de infraestrutura`: exige um investimento inicial maior em servidores dedicados e infraestrutura de rede robusta.
+
+**Arquitetura Peer-to-Peer (P2P)**
+- `Requisitos de segurança e controle`: a segurança é o principal ponto fraco do P2P em um ambiente corporativo. A descentralização da rede torna a segurança e o controle administrativo praticamente impossíveis de gerenciar. Os dados corporativos estariam espalhados em milhares de dispositivos, muitos fora do controle da TI, criando um risco enorme de vazamento de dados e vulnerabilidade a malwares.
+- `Escalabilidade e tolerância a falhas`: esta é a grande vantagem do P2P. A rede escala de forma natural e a tolerância a falhas é inerente, já que a falha de um nó não afeta a disponibilidade do sistema. A capacidade da rede aumenta à medida que mais usuários se conectam.
+- `Custos de infraestrutura`: o custo inicial é baixo, pois a arquitetura utiliza a infraestrutura já existente dos usuários, como seus próprios computadores e redes.
+
+Com base na análise do cenário e nos conceitos de arquitetura de sistemas distribuídos, a arquitetura cliente-servidor tradicional é a escolha mais adequada para um sistema de compartilhamento de arquivos corporativo. Embora o modelo P2P ofereça vantagens em escalabilidade e custo, ele falha em atender às exigências mais críticas para uma empresa: segurança e controle administrativo. Em um sistema corporativo, a integridade e a confidencialidade dos dados são inegociáveis. O modelo P2P não oferece mecanismos confiáveis para garantir que os dados estejam seguros. As questões de escalabilidade e tolerância a falhas do modelo cliente-servidor podem ser resolvidas com soluções técnicas e investimento, mas a falta de controle do P2P é uma falha fundamental para este caso.
 
 ## Questão 12 - Projeto Conceitual
 Desafio: Projete conceitualmente um sistema distribuído para votação eletrônica que deve garantir:
@@ -338,8 +366,26 @@ Desafio: Projete conceitualmente um sistema distribuído para votação eletrôn
 - Segurança e auditabilidade
 - Escalabilidade nacional
 
-Especifique:
-- Arquitetura escolhida e justificativa
-- Algoritmo de consenso adequado
-- Principais desafios e como serão tratados
-- Tipos de transparência implementados
+**Arquitetura escolhida e justificativa**
+Para um sistema de votação eletrônica, a arquitetura ideal seria **híbrida**. A parte centralizada seria responsável pelo registro e autenticação dos eleitores. Uma autoridade central garante que cada cidadão tenha uma única identidade e possa votar apenas uma vez. Esta camada também cuidaria da contagem final de votos.
+
+A parte distribuída, por sua vez, seria uma rede de nós (peers) que receberiam, validariam e replicariam os votos. Essa abordagem combina a segurança e o controle da arquitetura centralizada com a escalabilidade, a resiliência e a transparência de uma rede descentralizada.
+
+**Algoritmo de consenso adequado**
+Quanto ao algoritmo de consenso, o adequado para este sistema é o **PBFT** (Practical Byzantine Fault Tolerance). A principal razão para essa escolha é que o PBFT é projetado para lidar com falhas bizantinas, onde um nó pode agir de forma maliciosa, tentando corromper o sistema. Em um sistema de votação, não podemos assumir que todos os nós são confiáveis. O PBFT garante que o sistema chegue a um consenso e mantenha a integridade do log de votos.
+
+**Principais desafios e como serão tratados**
+- `Segurança e integridade do voto`: cada voto seria criptografado com chaves públicas e privadas e tratado como uma transação imutável. A auditabilidade é garantida por um log de transações distribuído e público, onde cada voto é registrado de forma anônima e transparente.
+
+- `Escalabilidade nacional`: a rede distribuída de nós lidaria com o alto volume de requisições. Para otimizar a performance, o sistema poderia usar sharding, dividindo a rede em grupos (ou "shards") para processar votos por região geográfica, aliviando a carga sobre a rede.
+
+- `Transparência de falha`: a replicação de dados em múltiplos nós com o algoritmo PBFT garante que, se um ou mais servidores falharem, a rede continue funcionando e o log de votos não seja perdido. O sistema automaticamente redireciona o tráfego para os nós em funcionamento.
+
+**Tipos de transparência implementados**
+- `Transparência de acesso`: os eleitores podem votar de qualquer lugar, de forma simples, sem se preocupar com os detalhes técnicos de acesso. O sistema lida com a conexão de forma transparente.
+
+- `Transparência de falha`: o sistema se mantém disponível mesmo com a falha de nós. A falha de um componente não é perceptível para o eleitor.
+
+- `Transparência de concorrência`: vários eleitores podem votar ao mesmo tempo. O sistema gerencia as transações de forma transparente, garantindo que não haja conflitos.
+
+- `Transparência de localização`: o eleitor não precisa saber onde o voto é processado ou armazenado, pois o sistema se conecta automaticamente ao servidor mais próximo e disponível para processar a transação.
