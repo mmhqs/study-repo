@@ -42,7 +42,7 @@ A principal implicação é que, embora os estados de um processo sejam os mesmo
 
 **Pipes**
 - Como funcionam: são canais de comunicação unidirecionais (de mão única) que permitem a transferência de dados entre dois processos. Existem pipes anônimos (geralmente entre processos pai e filho) e pipes nomeados, que podem ser usados por processos não relacionados na mesma máquina.
-- Implicações em sistemas distribuídos: o mecanismo totalmente local! Não podem ser usados para comunicação entre máquinas diferentes em uma rede! São úteis apenas para orquestrar processos dentro de um único computador.
+- Implicações em sistemas distribuídos: o mecanismo totalmente é local! Não podem ser usados para comunicação entre máquinas diferentes em uma rede! São úteis apenas para orquestrar processos dentro de um único computador.
 
 **Memória compartilhada**
 - Como funciona: vários processos acessam a mesma região da memória principal. É o método mais rápido de IPC porque evita a cópia de dados entre o espaço de memória do kernel e o espaço de memória dos processos. No entanto, exige um alto nível de sincronização para evitar condições de corrida, onde múltiplos processos tentam escrever na mesma área ao mesmo tempo.
@@ -90,8 +90,7 @@ A camada de Transporte lida com a conexão entre os processos, enquanto a camada
 | Velocidade          | Mais lento (maior latência)                   | Mais rápido (baixa latência)                |
 | Aplicações Típicas  | Transferência de arquivos, web, e-mail        | Streaming de vídeo/áudio, jogos online, VoIP|
 
-**TCP (Transmission Control Protocol)**
-É um protocolo orientado à conexão, o que significa que ele estabelece uma conexão confiável entre o remetente e o destinatário antes de iniciar a transferência de dados.
+**TCP (Transmission Control Protocol)**: é um protocolo orientado à conexão, o que significa que ele estabelece uma conexão confiável entre o remetente e o destinatário antes de iniciar a transferência de dados.
 - `Confiabilidade`: é a principal característica do TCP. Ele garante que os dados cheguem na ordem correta, sem perdas ou duplicações. Isso é feito por do three-way handshake, numeração de pacotes e retransmissão automática de pacotes perdidos ou danificados.
 - `Performance`: devido a todos os mecanismos de garantia de entrega, o TCP tem um overhead maior. A necessidade de confirmações e retransmissões adiciona latência, tornando-o mais lento que o UDP.
 - `Adequação`: é ideal para aplicações onde a integridade dos dados é crucial e a latência secundária.
@@ -101,8 +100,7 @@ Exemplos práticos:
 - `Transferência de Arquivos` (FTP): o download de um arquivo de software, por exemplo, exige que cada byte seja transferido corretamente, sem erros.
 - `E-mail` (SMTP): a mensagem precisa ser entregue na íntegra para ser legível e útil.
 
-**UDP (User Datagram Protocol)**
-É um protocolo sem conexão. Ele opera de forma mais simples e direta, enviando pacotes de dados (chamados datagramas) sem qualquer garantia de entrega ou ordem. Pense nele como o serviço postal: você envia uma carta e espera que chegue, mas não há confirmação ou garantia.
+**UDP (User Datagram Protocol)**: é um protocolo sem conexão. Ele opera de forma mais simples e direta, enviando pacotes de dados (chamados datagramas) sem qualquer garantia de entrega ou ordem. Pense nele como o serviço postal: você envia uma carta e espera que chegue, mas não há confirmação ou garantia.
 - `Confiabilidade`: o UDP é não confiável. Ele não possui mecanismos de confirmação, retransmissão ou controle de fluxo. Os pacotes podem chegar fora de ordem, duplicados ou, simplesmente, não chegarem.
 - `Performance`: como não há overhead de handshake ou retransmissão, o UDP é extremamente rápido e leve. É perfeito para aplicações que exigem baixa latência.
 - `Adequação`: é a escolha certa para aplicações onde a velocidade é mais importante que a confiabilidade perfeita, e onde a perda de alguns pacotes é aceitável.
